@@ -1,0 +1,101 @@
+/**
+ * index.css — the single stylesheet the app loads (see src/main.jsx).
+ *
+ * It does four things, in order:
+ *   1. Pulls in Tailwind.
+ *   2. Pulls in our fonts and our colour variables.
+ *   3. Teaches Tailwind our names, so we can write `bg-surface`, `text-brand`…
+ *   4. Sets a few sensible defaults on the page itself.
+ */
+
+@import "tailwindcss";
+@import "./fonts.css";
+@import "./theme.css";
+
+/* ---------------------------------------------------------------------------
+ * Dark mode
+ *
+ * By default Tailwind's `dark:` prefix follows the operating system setting.
+ * We want it to follow OUR toggle button instead, so we redefine it to mean
+ * "somewhere above me there is an element with the `dark` class".
+ * ------------------------------------------------------------------------- */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+ * Design tokens → Tailwind utility classes
+ *
+ * `inline` means Tailwind writes `var(--brand)` into the class rather than the
+ * colour value. That is what lets a single class like `bg-brand` look violet in
+ * light mode and lighter violet in dark mode, with no `dark:` prefix needed.
+ *
+ * Left side = the class name you type.  Right side = the variable in theme.css.
+ *   --color-surface  →  bg-surface, text-surface, border-surface
+ *   --font-hand      →  font-hand
+ * ------------------------------------------------------------------------- */
+@theme inline {
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-tint: var(--brand-tint);
+  --color-brand-contrast: var(--brand-contrast);
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-border: var(--border);
+
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+
+  --font-hand: var(--font-hand);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-code);
+
+  --shadow-card: var(--shadow-card);
+  --shadow-pop: var(--shadow-pop);
+}
+
+/* ---------------------------------------------------------------------------
+ * Page defaults
+ * ------------------------------------------------------------------------- */
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+
+    /* Clicking a link to #section scrolls smoothly instead of jumping. */
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+
+    /* Colours change instantly when toggling the theme would feel harsh, so
+       fade them over a fifth of a second. */
+    transition:
+      background-color 200ms ease,
+      color 200ms ease;
+  }
+
+  /* A clearly visible focus ring for people navigating with the keyboard.
+     `:focus-visible` only shows it for keyboard users, not mouse clicks. */
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Respect the "reduce motion" accessibility setting. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

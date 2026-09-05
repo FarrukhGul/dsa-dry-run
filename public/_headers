@@ -1,0 +1,42 @@
+# Security headers, applied to every page when deployed.
+#
+# This file format is understood by Cloudflare Pages and Netlify. If you deploy
+# somewhere else (Vercel, nginx, Apache), copy these same headers into that
+# host's config — the header names and values are identical everywhere.
+#
+# These have no effect while running `npm run dev` locally. They apply to the
+# built site only.
+
+/*
+  # Stop other sites from putting our pages inside an invisible frame and
+  # tricking people into clicking things (clickjacking).
+  X-Frame-Options: DENY
+
+  # Don't let the browser guess a file's type. If we say it's an image, it is
+  # treated as an image and never executed as a script.
+  X-Content-Type-Options: nosniff
+
+  # When someone clicks a link out of our site, send only our domain as the
+  # referrer, not the full URL. Shared dry-run links can contain code.
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # We never need a camera, microphone or location. Turn them off entirely so
+  # nothing can ask.
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+
+  # Content Security Policy — the important one. It lists the only places the
+  # browser is allowed to load things from, so injected code has nowhere to
+  # phone home to.
+  #
+  #   default-src 'self'      by default, only load from our own domain
+  #   style-src   + inline    React and Tailwind set inline styles
+  #   font/style  + Google    the Assistant and JetBrains Mono webfonts
+  #   connect-src 'self'      no sending data to anyone else
+  #   object-src  'none'      no Flash-era plugins
+  #   frame-ancestors 'none'  same idea as X-Frame-Options, modern version
+  #
+  # PHASE 2 NOTE: the code-running sandbox will need `worker-src 'self' blob:`
+  # and a `frame-src` entry added here. Do that when the engine lands, not
+  # before — a policy should never permit more than the app actually uses.
+  # (`worker-src` briefly lived here for Monaco, and was removed with it.)
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; form-action 'self'; frame-ancestors 'none'

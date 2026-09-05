@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>DryRun — dry run your DSA code, line by line</title>
+    <meta
+      name="description"
+      content="Paste your data structures and algorithms code and watch it run one line at a time. Free, no sign-up, and it never leaves your browser."
+    />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!--
+      Fonts.
+      `preconnect` opens the connection to Google Fonts early so the text does
+      not sit unstyled while we wait. Excalifont (the hand-drawn one) is not
+      here because we host it ourselves — see src/styles/fonts.css.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    />
+
+    <!--
+      Sets light or dark mode before the page draws, so dark-mode visitors
+      never see a white flash. It must stay here in <head>, before the app.
+      See public/theme-init.js for why it is a file and not inline.
+    -->
+    <script src="/theme-init.js"></script>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

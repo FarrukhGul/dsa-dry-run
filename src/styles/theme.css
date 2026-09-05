@@ -1,0 +1,68 @@
+/**
+ * theme.css — every colour and font in the app, defined once.
+ *
+ * How it works:
+ *   `:root`  holds the LIGHT theme values.
+ *   `.dark`  overrides the same names with DARK theme values.
+ *
+ * Because both blocks use the SAME variable names, switching the theme is
+ * just adding or removing the `dark` class on the <html> element.
+ * Nothing else in the app has to know which theme is active.
+ *
+ * Never hard-code a colour anywhere else. If you need a new colour, add it
+ * here (in BOTH blocks) so it works in light and dark mode.
+ *
+ * Palette is taken from Excalidraw / plus.excalidraw.com.
+ */
+
+:root {
+  /* Tells the browser to use light-mode scrollbars, form controls, etc. */
+  color-scheme: light;
+
+  /* Brand — the violet used for buttons, links and highlights */
+  --brand: #6965db;
+  --brand-hover: #5b57d1;
+  --brand-tint: #f1f0ff; /* very light violet, for chips and soft backgrounds */
+  --brand-contrast: #ffffff; /* text colour placed ON TOP of --brand */
+
+  /* Surfaces — from furthest back to closest to the reader */
+  --bg: #ffffff; /* the page itself */
+  --surface: #f8f9fa; /* panels, sidebars, code areas */
+  --raised: #ffffff; /* cards that sit above a surface */
+  --border: #e9ecef;
+
+  /* Text */
+  --text: #1b1b1f; /* headings and body */
+  --muted: #6b6b75; /* captions, hints, secondary info */
+
+  /* Shadows */
+  --shadow-card: 0 2px 8px rgb(27 27 31 / 6%), 0 1px 2px rgb(27 27 31 / 4%);
+  --shadow-pop: 0 8px 28px rgb(27 27 31 / 10%);
+
+  /* Fonts */
+  --font-hand: "Excalifont", "Segoe Print", "Comic Sans MS", cursive;
+  --font-body: "Assistant", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-code: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.dark {
+  color-scheme: dark;
+
+  /* In dark mode the violet is lightened so it stays readable, and text that
+     sits on top of it flips to near-black. */
+  --brand: #a8a5ff;
+  --brand-hover: #bcb9ff;
+  --brand-tint: #30303a;
+  --brand-contrast: #121212;
+
+  --bg: #121212;
+  --surface: #1e1e22;
+  --raised: #232329;
+  --border: #2e2e34;
+
+  --text: #ced4da;
+  --muted: #8a8a94;
+
+  --shadow-card: 0 2px 8px rgb(0 0 0 / 40%), 0 1px 2px rgb(0 0 0 / 30%);
+  --shadow-pop: 0 8px 28px rgb(0 0 0 / 50%);
+}

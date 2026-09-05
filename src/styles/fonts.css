@@ -1,0 +1,22 @@
+/**
+ * fonts.css — loads the hand-drawn Excalidraw font.
+ *
+ * Excalifont is the font Excalidraw uses for its sketchy look. It is MIT
+ * licensed, so we host the file ourselves inside the app instead of loading it
+ * from someone else's server. Self-hosting is faster and means no third party
+ * can see who visits our site.
+ *
+ * The other two fonts (Assistant for text, JetBrains Mono for code) come from
+ * Google Fonts and are linked in index.html.
+ */
+
+@font-face {
+  font-family: "Excalifont";
+  src: url("../assets/fonts/Excalifont-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+
+  /* `swap` shows a fallback font immediately, then swaps in Excalifont when it
+     finishes downloading — so text is never invisible while loading. */
+  font-display: swap;
+}
