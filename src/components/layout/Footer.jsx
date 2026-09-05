@@ -1,10 +1,16 @@
 /**
  * Footer — the quiet strip at the bottom of every page.
  *
- * It repeats the two promises the project is built on: it is free, and your
- * code never leaves your browser. Both are worth saying out loud.
+ * It repeats the two promises the project is built on — it is free, and your
+ * code never leaves your browser — and credits whoever built it.
+ *
+ * The name comes from src/data/developer.js, the same file the Developer page
+ * reads, so there is only ever one place to change it.
  */
 
+import { Link } from "react-router-dom";
+
+import { DEVELOPER } from "../../data/developer.js";
 import { Container } from "../ui/Container.jsx";
 
 export function Footer() {
@@ -19,6 +25,16 @@ export function Footer() {
 
           <p>Your code runs in your browser. It is never uploaded anywhere.</p>
         </div>
+
+        <p className="mt-6 text-center text-xs text-muted sm:text-left">
+          Built by{" "}
+          <Link
+            to="/developer"
+            className="text-brand underline decoration-brand/30 underline-offset-2 transition-colors hover:decoration-brand"
+          >
+            {DEVELOPER.name}
+          </Link>
+        </p>
       </Container>
     </footer>
   );

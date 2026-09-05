@@ -20,9 +20,13 @@ import { ThemeToggle } from "./ThemeToggle.jsx";
  * src/app/routes.jsx — those two files are the whole site map.
  */
 const navigationLinks = [
+  // `exact` matters only for this one. Every address begins with "/", so
+  // without it the Home link would look active on every single page.
+  { to: "/", label: "Home", exact: true },
   { to: "/dry-run", label: "Dry Run" },
   { to: "/whiteboard", label: "Whiteboard" },
   { to: "/problems", label: "Problems" },
+  { to: "/developer", label: "Developer" },
 ];
 
 /**
@@ -48,7 +52,12 @@ export function Header() {
           {/* Wide screens: navigation sits inline, in the middle. */}
           <nav className="hidden items-center gap-1 md:flex">
             {navigationLinks.map((link) => (
-              <NavLink key={link.to} to={link.to} className={navLinkStyles}>
+              <NavLink
+                key={link.to}
+                to={link.to}
+                end={link.exact}
+                className={navLinkStyles}
+              >
                 {link.label}
               </NavLink>
             ))}
@@ -60,7 +69,12 @@ export function Header() {
         {/* Narrow screens: same links, own row. */}
         <nav className="flex items-center gap-1 overflow-x-auto pb-2 md:hidden">
           {navigationLinks.map((link) => (
-            <NavLink key={link.to} to={link.to} className={navLinkStyles}>
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.exact}
+              className={navLinkStyles}
+            >
               {link.label}
             </NavLink>
           ))}

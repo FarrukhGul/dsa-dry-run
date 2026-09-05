@@ -6,6 +6,7 @@
  *   /dry-run      the editor + step-by-step visualiser
  *   /whiteboard   the Excalidraw drawing board
  *   /problems     the problem library
+ *   /developer    who built it
  *   anything else a friendly "page not found"
  *
  * Adding a page takes two edits: add a <Route> here, and add a link in
@@ -41,6 +42,15 @@ const WhiteboardPage = lazy(() =>
   })),
 );
 
+// The developer page is lazy for the same reason: it carries GSAP, which
+// nothing else on the site uses. Loading an animation library for visitors who
+// never open this one page would be a poor trade.
+const DeveloperPage = lazy(() =>
+  import("../pages/Developer/DeveloperPage.jsx").then((module) => ({
+    default: module.DeveloperPage,
+  })),
+);
+
 export function AppRoutes() {
   return (
     // <Suspense> shows the fallback while a lazily-loaded page downloads.
@@ -50,6 +60,7 @@ export function AppRoutes() {
         <Route path="/dry-run" element={<DryRunPage />} />
         <Route path="/whiteboard" element={<WhiteboardPage />} />
         <Route path="/problems" element={<ProblemsPage />} />
+        <Route path="/developer" element={<DeveloperPage />} />
 
         {/* "*" means "anything that didn't match above". */}
         <Route path="*" element={<NotFoundPage />} />
