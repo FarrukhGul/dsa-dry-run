@@ -28,4 +28,11 @@ features/dry-run/
 A feature may import from `components/`, `hooks/` and `lib/`.
 
 A feature should **not** import from another feature. If two features need the
-same thing, that thing belongs in `lib/` or `components/`.
+same thing, that thing belongs in `lib/` or `components/`. That is why
+`formatSnapshot.js` lives in `lib/`, and `ValueView` and `PanelSection` live in
+`components/ui/` — both features display recorded values, so neither owns them.
+
+**One deliberate exception:** `dry-run` imports `visualizer`, because the dry
+run panel is what puts the diagrams on screen. It runs one way only —
+`visualizer` never imports from `dry-run` — so there is no cycle. If you find
+yourself wanting the reverse, move the shared piece into `lib/` instead.

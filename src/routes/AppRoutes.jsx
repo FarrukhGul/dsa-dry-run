@@ -19,19 +19,25 @@ import { PageLoading } from "../components/ui/PageLoading.jsx";
 import { HomePage } from "../pages/Home/HomePage.jsx";
 import { NotFoundPage } from "../pages/NotFound/NotFoundPage.jsx";
 import { ProblemsPage } from "../pages/Problems/ProblemsPage.jsx";
-import { WhiteboardPage } from "../pages/Whiteboard/WhiteboardPage.jsx";
 
 /*
- * The dry run page is loaded LAZILY — its code is only downloaded when someone
- * actually opens /dry-run.
+ * The two heavy pages are loaded LAZILY — their code is only downloaded when
+ * somebody actually opens them.
  *
- * Why: it contains the Monaco code editor, which is by far the biggest thing in
- * the app. Loading it up front would make the landing page slow for everyone,
- * including visitors who only came to read about the project.
+ * Why: the dry run page carries the code editor and the whiteboard carries the
+ * whole of Excalidraw. Either one loaded up front would make the landing page
+ * slow for everybody, including visitors who only came to read about the
+ * project. Keeping them apart is what holds the first page under 80 KB.
  */
 const DryRunPage = lazy(() =>
   import("../pages/DryRun/DryRunPage.jsx").then((module) => ({
     default: module.DryRunPage,
+  })),
+);
+
+const WhiteboardPage = lazy(() =>
+  import("../pages/Whiteboard/WhiteboardPage.jsx").then((module) => ({
+    default: module.WhiteboardPage,
   })),
 );
 

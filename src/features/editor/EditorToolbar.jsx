@@ -2,10 +2,16 @@
  * EditorToolbar — the strip above the editor: language on the left, actions on
  * the right.
  *
- * The "Dry Run" button is switched off until the engine exists (Phase 2). It is
- * shown rather than hidden on purpose — the point of the app should be visible
- * from the first screen, and its tooltip says plainly why it cannot be pressed
- * yet.
+ * Two ways to run, because they answer different questions:
+ *
+ *   Run Code   "does this work, and what does it print?"
+ *              Runs start to finish and shows the output and any errors.
+ *
+ *   Dry Run    "why does this not work?"
+ *              Records every line so you can step through it afterwards.
+ *
+ * Dry Run is the primary button because it is what the site is for, but Run
+ * Code is the one you reach for more often once your code is nearly right.
  */
 
 import { Button } from "../../components/ui/Button.jsx";
@@ -16,10 +22,14 @@ export function EditorToolbar({
   onSelectLanguage,
   onReset,
   isUnchanged,
+  onRunCode,
+  onDryRun,
+  runningMode,
 }) {
-  const dryRunDisabledReason = language.canDryRun
-    ? "The dry run engine is being built — Phase 2."
-    : `The dry run engine for ${language.label} is not built yet. JavaScript is first.`;
+  const isBusy = runningMode !== null && runningMode !== undefined;
+  const canRun = language.canDryRun && !isBusy;
+
+  const unavailableReason = `The engine for ${language.label} is not built yet. JavaScript works today.`;
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
@@ -40,8 +50,31 @@ export function EditorToolbar({
           Reset
         </Button>
 
-        <Button size="sm" disabled title={dryRunDisabledReason}>
-          Dry Run
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={onRunCode}
+          disabled={!canRun}
+          title={
+            language.canDryRun
+              ? "Run it start to finish and show what it prints"
+              : unavailableReason
+          }
+        >
+          {runningMode === "run" ? "Running…" : "Run Code"}
+        </Button>
+
+        <Button
+          size="sm"
+          onClick={onDryRun}
+          disabled={!canRun}
+          title={
+            language.canDryRun
+              ? "Record every line, then step through it"
+              : unavailableReason
+          }
+        >
+          {runningMode === "dry-run" ? "Recording…" : "Dry Run"}
         </Button>
       </div>
     </div>

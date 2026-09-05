@@ -29,14 +29,47 @@
   # phone home to.
   #
   #   default-src 'self'      by default, only load from our own domain
-  #   style-src   + inline    React and Tailwind set inline styles
+  #   script-src  'self'      no inline scripts, no eval, on the page itself
+  #   style-src   + inline    React and CodeMirror set inline styles
   #   font/style  + Google    the Assistant and JetBrains Mono webfonts
+  #   worker-src  'self'      the dry run engine's background thread
   #   connect-src 'self'      no sending data to anyone else
   #   object-src  'none'      no Flash-era plugins
   #   frame-ancestors 'none'  same idea as X-Frame-Options, modern version
-  #
-  # PHASE 2 NOTE: the code-running sandbox will need `worker-src 'self' blob:`
-  # and a `frame-src` entry added here. Do that when the engine lands, not
-  # before — a policy should never permit more than the app actually uses.
-  # (`worker-src` briefly lived here for Monaco, and was removed with it.)
-  Content-Security-Policy: default-src 'self'; base-uri 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; form-action 'self'; frame-ancestors 'none'
+  #   img-src     + blob:   the whiteboard draws and exports images this way
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self'; object-src 'none'; form-action 'self'; frame-ancestors 'none'
+
+# ---------------------------------------------------------------------------
+# The dry run engine's background thread — the one file that runs your code.
+#
+# THE PROBLEM
+# To dry run your code, the engine has to turn text into something runnable.
+# That is `new Function`, which the policy above deliberately forbids. Allowing
+# it site-wide would weaken every page to make one file work.
+#
+# THE ANSWER
+# A worker can carry its own policy, so this one gets a rule of its own. It is
+# not a relaxed version of the policy above — it is a different trade:
+#
+#   script-src 'unsafe-eval'   it MAY compile your code
+#   connect-src 'none'         it may NOT reach the network. At all.
+#   default-src 'none'         and it may not load anything else either
+#
+# So the single file permitted to run a stranger's code is also the single file
+# with no way to send anything anywhere. That is a better bargain than it
+# looks: exfiltration is the thing worth preventing, and this removes the
+# route entirely.
+#
+# This is why vite.config.js pins the worker to a fixed filename — a rule
+# cannot target a name that changes on every build.
+#
+# ⚠ VERIFY THIS AFTER YOUR FIRST DEPLOY.
+# Per-path headers behave slightly differently on each host. Open the deployed
+# site, run a dry run, and check the browser console. If you see a Content
+# Security Policy error mentioning 'unsafe-eval', this rule is not being
+# applied and the engine will not work in production.
+# ---------------------------------------------------------------------------
+
+/workers/*
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-eval'; connect-src 'none'
+  X-Content-Type-Options: nosniff

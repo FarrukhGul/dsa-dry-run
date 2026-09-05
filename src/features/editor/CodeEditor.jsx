@@ -15,10 +15,11 @@
  * by everyone.
  */
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import CodeMirror, { EditorView } from "@uiw/react-codemirror";
 
 import { useTheme } from "../../hooks/useTheme.js";
+import { activeLineHighlight, setActiveLine } from "./activeLineHighlight.js";
 import { getLanguageExtension } from "./editor-languages.js";
 import { darkEditorTheme, lightEditorTheme } from "./editor-themes.js";
 
@@ -53,8 +54,19 @@ const BASIC_SETUP = {
   foldGutter: false,
 };
 
-export function CodeEditor({ language, value, onChange }) {
+/**
+ * @param {object} props
+ * @param {object} props.language    from features/editor/languages.js
+ * @param {string} props.value       the code
+ * @param {Function} props.onChange  called with the new code
+ * @param {number|null} [props.activeLine] line to highlight while stepping
+ */
+export function CodeEditor({ language, value, onChange, activeLine = null }) {
   const { theme } = useTheme();
+
+  // A handle on the live editor, so we can send it the active line without
+  // rebuilding anything.
+  const viewRef = useRef(null);
 
   // Rebuild the extension list only when the language changes — not on every
   // keystroke, which would reset the editor.
@@ -65,9 +77,16 @@ export function CodeEditor({ language, value, onChange }) {
       // Long lines wrap instead of scrolling sideways. Easier on a laptop, and
       // much easier on a phone.
       EditorView.lineWrapping,
+
+      activeLineHighlight,
     ],
     [language.id],
   );
+
+  // Tell the editor which line is running, whenever that changes.
+  useEffect(() => {
+    viewRef.current?.dispatch({ effects: setActiveLine.of(activeLine) });
+  }, [activeLine]);
 
   return (
     <CodeMirror
@@ -78,6 +97,9 @@ export function CodeEditor({ language, value, onChange }) {
       extensions={extensions}
       theme={theme === "dark" ? darkEditorTheme : lightEditorTheme}
       basicSetup={BASIC_SETUP}
+      onCreateEditor={(view) => {
+        viewRef.current = view;
+      }}
       // Fills whatever box it is placed in. The parent sets the real height.
       height="100%"
       className="h-full text-[13px]"

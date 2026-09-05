@@ -12,7 +12,7 @@ export function PageLoading() {
       {/* role="status" tells screen readers that something is loading. */}
       <div role="status" className="text-sm text-muted">
         <span className="mx-auto mb-4 block h-6 w-6 animate-spin rounded-full border-2 border-border border-t-brand" />
-        Loading the editor…
+        Loading…
       </div>
     </Container>
   );

@@ -25,9 +25,9 @@ src/
 ├─ features/       Where the real work happens
 │  │                Each feature owns its own logic, state and components.
 │  ├─ editor/        the code editor            ✅ built
-│  ├─ dry-run/       turning code into steps    ← Phase 2, next
-│  ├─ visualizer/    drawing variables, arrays, trees, the call stack
-│  ├─ whiteboard/    the Excalidraw canvas
+│  ├─ dry-run/       running code, step by step ✅ built
+│  ├─ visualizer/    arrays, lists and trees as diagrams  ✅ built
+│  ├─ whiteboard/    the Excalidraw canvas  ✅ built
 │  └─ problems/      the problem catalogue
 │
 ├─ components/     Shared building blocks used by many pages
