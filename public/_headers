@@ -1,3 +1,10 @@
+# ⚠ THIS FILE IS FOR CLOUDFLARE PAGES AND NETLIFY ONLY.
+#
+# Vercel ignores it completely and reads ../vercel.json instead. The two say
+# the same thing in two formats, so if you change a policy here, change it
+# there as well — and vice versa. Getting the worker rule wrong on either host
+# means the dry run engine silently stops working in production.
+#
 # Security headers, applied to every page when deployed.
 #
 # This file format is understood by Cloudflare Pages and Netlify. If you deploy

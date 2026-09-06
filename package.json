@@ -52,5 +52,8 @@
     "@excalidraw/mermaid-to-excalidraw": {
       "nanoid": "^5.1.16"
     }
+  },
+  "engines": {
+    "node": ">=20.19.0"
   }
 }
