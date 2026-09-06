@@ -100,3 +100,20 @@
     }
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * Dotted paper
+ *
+ * One dot per tile, drawn with a radial gradient: the coloured part is a 1px
+ * circle and everything past it is transparent, so tiling the gradient gives
+ * an evenly spaced grid of dots for the cost of a single background image.
+ *
+ * Used behind the whiteboard, whose canvas is set to transparent so this shows
+ * through. See features/whiteboard/Whiteboard.jsx.
+ * ------------------------------------------------------------------------- */
+.dot-grid {
+  background-image: radial-gradient(var(--dot-grid) 1px, transparent 1px);
+  /* A starting size only. The whiteboard overwrites both size and position on
+     every frame so the dots track its pan and zoom — see Whiteboard.jsx. */
+  background-size: 22px 22px;
+}

@@ -35,6 +35,10 @@
   --text: #1b1b1f; /* headings and body */
   --muted: #6b6b75; /* captions, hints, secondary info */
 
+  /* The dotted paper behind the whiteboard. Barely there on purpose: it should
+     read as texture you stop noticing, not as a grid you have to draw around. */
+  --dot-grid: rgb(27 27 31 / 16%);
+
   /* Shadows */
   --shadow-card: 0 2px 8px rgb(27 27 31 / 6%), 0 1px 2px rgb(27 27 31 / 4%);
   --shadow-pop: 0 8px 28px rgb(27 27 31 / 10%);
@@ -47,6 +51,10 @@
 }
 
 .dark {
+  /* Lighter and fainter than the light-mode dots: on a dark ground the eye
+     picks pale marks out far more readily, so the same opacity would shout. */
+  --dot-grid: rgb(255 255 255 / 11%);
+
   color-scheme: dark;
 
   /* In dark mode the violet is lightened so it stays readable, and text that
