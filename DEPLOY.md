@@ -26,6 +26,27 @@ automatically:
 | Output directory | `dist` | |
 | Node version | 20.19+ | pinned by `engines` in `package.json` |
 
+### About `vercel.json`
+
+**It cannot contain comments, and Vercel rejects any key outside its schema** —
+including a `_comment` one. (That is how this file came to exist: a note left
+in there failed the deploy with *"should NOT have additional property"*.) So the
+reasoning lives here instead.
+
+**`rewrites` is a plain catch-all.** Every path is sent to `index.html`, which
+is what a single-page app needs — without it, refreshing on `/problems` gives a
+404. It does not need to exclude `/assets`, `/workers` or `/pyodide`, because
+**Vercel checks the filesystem before applying rewrites**: a real file always
+wins. Listing exclusions would only be one more thing to forget the next time a
+file is added to `public/`.
+
+**The `/((?!workers/).*)` pattern on the first header block** is doing real
+work. Headers are *not* filesystem-gated, so without that negative lookahead
+the site-wide policy would also land on the worker and fight with the one below
+it — and the stricter of the two wins, which would break the engine.
+
+---
+
 ### 2. Check the security headers actually applied
 
 `vercel.json` sends two different Content Security Policies, and the second one

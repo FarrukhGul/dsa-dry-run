@@ -3,17 +3,28 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-
-  "_comment_rewrites": "Single-page app: every address has to reach index.html so React Router can handle it, or refreshing on /problems would 404. A plain catch-all is safe because Vercel checks the filesystem BEFORE applying rewrites, so real files — assets, the worker, the Python runtime — are served as themselves. Listing exclusions here would only rot the next time a file is added to public/.",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
-
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
   "headers": [
     {
       "source": "/((?!workers/).*)",
       "headers": [
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
         {
           "key": "Permissions-Policy",
           "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
@@ -24,7 +35,6 @@
         }
       ]
     },
-
     {
       "source": "/workers/(.*)",
       "headers": [
@@ -32,22 +42,32 @@
           "key": "Content-Security-Policy",
           "value": "default-src 'none'; script-src 'self' 'unsafe-eval'; connect-src 'self'; worker-src 'self'"
         },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
       ]
     },
-
     {
       "source": "/assets/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     },
-
     {
       "source": "/pyodide/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=2592000, stale-while-revalidate=86400" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=2592000, stale-while-revalidate=86400"
+        }
       ]
     }
   ]
