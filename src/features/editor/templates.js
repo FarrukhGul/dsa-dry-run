@@ -48,7 +48,7 @@ def two_sum(nums, target):
     return []
 
 
-two_sum([3, 1, 4, 1, 5], 9)
+print(two_sum([3, 1, 4, 1, 5], 9))
 `;
 
 const cpp = `// Two Sum — find the two numbers that add up to the target.

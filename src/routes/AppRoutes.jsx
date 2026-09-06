@@ -19,7 +19,6 @@ import { Route, Routes } from "react-router-dom";
 import { PageLoading } from "../components/ui/PageLoading.jsx";
 import { HomePage } from "../pages/Home/HomePage.jsx";
 import { NotFoundPage } from "../pages/NotFound/NotFoundPage.jsx";
-import { ProblemsPage } from "../pages/Problems/ProblemsPage.jsx";
 
 /*
  * The two heavy pages are loaded LAZILY — their code is only downloaded when
@@ -39,6 +38,14 @@ const DryRunPage = lazy(() =>
 const WhiteboardPage = lazy(() =>
   import("../pages/Whiteboard/WhiteboardPage.jsx").then((module) => ({
     default: module.WhiteboardPage,
+  })),
+);
+
+// The problem library is lazy too: 150 worked solutions is a lot of text, and
+// nobody browsing the home page needs it.
+const ProblemsPage = lazy(() =>
+  import("../pages/Problems/ProblemsPage.jsx").then((module) => ({
+    default: module.ProblemsPage,
   })),
 );
 

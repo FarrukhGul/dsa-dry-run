@@ -5,10 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/sync-pyodide.mjs && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "check:engine": "node scripts/engine-check.mjs"
+    "check:engine": "node scripts/engine-check.mjs",
+    "check:problems": "node scripts/check-problems.mjs",
+    "check:python": "node scripts/check-python.mjs",
+    "sync:pyodide": "node scripts/sync-pyodide.mjs"
   },
   "dependencies": {
     "@codemirror/lang-cpp": "^6.0.3",
@@ -25,6 +28,7 @@
     "acorn": "^8.18.0",
     "astring": "^1.9.0",
     "gsap": "^3.15.0",
+    "pyodide": "^314.0.6",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.3",

@@ -51,8 +51,8 @@ const steps = [
 ];
 
 const languages = [
-  { name: "JavaScript", status: "Building now", ready: true },
-  { name: "Python", status: "Next up", ready: false },
+  { name: "JavaScript", status: "Ready", ready: true },
+  { name: "Python", status: "Ready", ready: true },
   { name: "C++", status: "Planned", ready: false },
   { name: "Java", status: "Planned", ready: false },
 ];

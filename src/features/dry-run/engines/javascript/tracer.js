@@ -130,7 +130,7 @@ export function createTracer(limits, { record = true } = {}) {
 
   /**
    * The object the rewritten code calls into. Its method names are the ones
-   * hard-coded in instrument.js — renaming one means renaming it there too.
+   * Hard-coded in instrument.js — renaming one means renaming it there too.
    */
   const runtime = {
     /** About to run `line`. These are the variables in scope right now. */

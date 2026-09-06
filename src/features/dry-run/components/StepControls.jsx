@@ -76,7 +76,7 @@ export function StepControls({ runner }) {
         onChange={(event) => goTo(Number(event.target.value))}
         disabled={totalSteps === 0}
         aria-label="Jump to any step"
-        className="w-full accent-[var(--brand)]"
+        className="w-full accent-brand"
       />
 
       {/* Everything secondary. */}

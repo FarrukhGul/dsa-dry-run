@@ -29,40 +29,50 @@
 import { runJavaScript } from "../engines/javascript/runJavaScript.js";
 
 /**
- * One request from the page: some code, and which language it is.
- * We answer with exactly one message, then the page throws this thread away.
+ * Picks the engine for a language and runs it.
+ *
+ * Python is imported only when it is asked for. That import pulls in Pyodide's
+ * loader, and someone who only ever writes JavaScript should not pay for it.
  */
-self.onmessage = (event) => {
+async function runInLanguage(languageId, source, mode) {
+  const record = mode === "dry-run";
+
+  if (languageId === "javascript") {
+    return runJavaScript(source, { record });
+  }
+
+  if (languageId === "python") {
+    const { runPython } = await import("../engines/python/runPython.js");
+    return runPython(source, { record });
+  }
+
+  return {
+    status: "unsupported",
+    steps: [],
+    output: [],
+    stepCount: 0,
+    error: {
+      message: `The engine for ${languageId} is not built yet. JavaScript and Python are the ones that work today.`,
+      line: null,
+    },
+  };
+}
+
+/**
+ * One request from the page: some code, which language it is, and whether to
+ * record every step. We answer with exactly one message, then the page throws
+ * this thread away.
+ */
+self.onmessage = async (event) => {
   const { requestId, languageId, source, mode = "dry-run" } = event.data ?? {};
 
   try {
-    if (languageId !== "javascript") {
-      self.postMessage({
-        requestId,
-        result: {
-          mode,
-          status: "unsupported",
-          steps: [],
-          output: [],
-          stepCount: 0,
-          error: {
-            message: `The engine for ${languageId} is not built yet. JavaScript is the one that works today.`,
-            line: null,
-          },
-        },
-      });
-      return;
-    }
-
-    // "dry-run" writes down every step; "run" just runs it and collects the
-    // output. Same engine either way — see runJavaScript.js.
-    const result = runJavaScript(source, { record: mode === "dry-run" });
-
+    const result = await runInLanguage(languageId, source, mode);
     self.postMessage({ requestId, result: { ...result, mode } });
   } catch (thrown) {
-    // Reaching here means the engine itself broke, not the user's code —
-    // runJavaScript is supposed to turn every failure into a result. Report it
-    // as an error rather than letting the thread die silently.
+    // Reaching here means the engine itself broke, not the user's code — each
+    // engine is supposed to turn every failure into a result. Report it rather
+    // than letting the thread die silently.
     self.postMessage({
       requestId,
       result: {

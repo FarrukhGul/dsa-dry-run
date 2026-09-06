@@ -49,6 +49,25 @@ export function useCodeDraft() {
     [language.id, setDrafts],
   );
 
+  /**
+   * Switches language and replaces the code in one go.
+   *
+   * Used when opening a problem from the library. It has to be one function
+   * rather than two calls, because `setCode` writes to whichever language is
+   * selected *right now* — setting the language first and the code second
+   * would put the new code in the old language's draft.
+   */
+  const loadInto = useCallback(
+    (targetLanguageId, nextCode) => {
+      setLanguageId(targetLanguageId);
+      setDrafts((currentDrafts) => ({
+        ...currentDrafts,
+        [targetLanguageId]: nextCode,
+      }));
+    },
+    [setLanguageId, setDrafts],
+  );
+
   const resetToTemplate = useCallback(() => {
     setDrafts((currentDrafts) => ({
       ...currentDrafts,
@@ -61,6 +80,7 @@ export function useCodeDraft() {
     setLanguageId,
     code,
     setCode,
+    loadInto,
     resetToTemplate,
 
     // True when the code is still exactly the starter template, so the Reset

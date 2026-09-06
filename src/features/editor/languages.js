@@ -23,7 +23,7 @@ export const LANGUAGES = [
   {
     id: "python",
     label: "Python",
-    canDryRun: false,
+    canDryRun: true,
   },
   {
     id: "cpp",

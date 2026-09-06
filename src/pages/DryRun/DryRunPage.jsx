@@ -1,17 +1,20 @@
 /**
- * DryRunPage — the main screen: write code on the left, watch it run on the
- * right.
+ * DryRunPage — the main screen.
  *
- * Notice how little happens in this file. It holds no logic of its own — it
- * asks two hooks for the state and hands pieces to the components that do the
- * work. That is the rule for every page: pages arrange, features work.
+ * It has two shapes:
  *
- *   useCodeDraft   the code you are writing, saved as you type
- *   useDryRunner   the recorded run, and where you are inside it
+ *   On its own              editor | dry run
+ *   Solving a problem       problem | editor | dry run
+ *
+ * Notice how little happens in this file even so. It asks the hooks for state
+ * and hands pieces to the components that do the work. Pages arrange, features
+ * work.
  */
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 
+import { Button } from "../../components/ui/Button.jsx";
 import { Container } from "../../components/ui/Container.jsx";
 import { Panel } from "../../components/ui/Panel.jsx";
 import { DryRunPanel } from "../../features/dry-run/components/DryRunPanel.jsx";
@@ -20,9 +23,12 @@ import { useStepShortcuts } from "../../features/dry-run/useStepShortcuts.js";
 import { CodeEditor } from "../../features/editor/CodeEditor.jsx";
 import { EditorToolbar } from "../../features/editor/EditorToolbar.jsx";
 import { useCodeDraft } from "../../features/editor/useCodeDraft.js";
+import { ProblemPanel } from "../../features/problems/ProblemPanel.jsx";
+import { useProblemProgress } from "../../features/problems/useProblemProgress.js";
+import { cx } from "../../lib/classNames.js";
 
 /*
- * How tall the two panels are.
+ * How tall the panels are.
  *
  * On a phone: a fixed chunk of the screen, so the page still scrolls normally.
  * On a laptop: whatever is left after the header and toolbar, with a floor so
@@ -30,32 +36,111 @@ import { useCodeDraft } from "../../features/editor/useCodeDraft.js";
  */
 const PANEL_HEIGHT = "h-[65vh] min-h-[420px] lg:h-[calc(100vh-13rem)]";
 
+/*
+ * The problem panel is shorter than the other two below the widest breakpoint,
+ * because there it sits ABOVE them rather than beside them — a full-height
+ * statement would push the editor off the screen entirely.
+ */
+const PROBLEM_PANEL_HEIGHT =
+  "max-h-[38vh] xl:max-h-none xl:h-[calc(100vh-13rem)]";
+
 export function DryRunPage() {
-  const { language, setLanguageId, code, setCode, resetToTemplate, isUnchanged } =
-    useCodeDraft();
+  const {
+    language,
+    setLanguageId,
+    code,
+    setCode,
+    loadInto,
+    resetToTemplate,
+    isUnchanged,
+  } = useCodeDraft();
 
   const runner = useDryRunner();
+  const { statusOf, markAttempted, markSolved } = useProblemProgress();
+
+  const [openedProblem, setOpenedProblem] = useState(null);
+  const [mode, setMode] = useState(null); // "solve" | "solution"
+  const [checkResult, setCheckResult] = useState(null); // "pass" | "fail"
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const problemId = searchParams.get("problem");
+  const requestedMode = searchParams.get("mode") ?? "solve";
 
   /*
-   * The code split into lines, so the panel can quote the line a step is on.
+   * Arriving from the library as /dry-run?problem=two-sum&mode=solve
    *
-   * This is safe to take from the editor rather than from the trace: editing
-   * the code clears the run (see below), so what is on screen always matches
-   * what was executed.
+   * The library is imported dynamically, so its 150 problems are downloaded
+   * only by people who actually came from it.
    */
+  useEffect(() => {
+    if (!problemId) return;
+
+    let cancelled = false;
+
+    import("../../data/problems/index.js").then(({ getProblem }) => {
+      if (cancelled) return;
+
+      const problem = getProblem(problemId);
+
+      if (problem) {
+        const solving = requestedMode !== "solution";
+
+        loadInto("javascript", solving ? problem.starter : problem.solution);
+        setOpenedProblem(problem);
+        setMode(solving ? "solve" : "solution");
+        setCheckResult(null);
+        runner.clear();
+
+        if (solving) markAttempted(problem.id);
+      }
+
+      // Drop the parameters once used, so refreshing does not throw away
+      // whatever you have since written.
+      setSearchParams({}, { replace: true });
+    });
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [problemId, requestedMode]);
+
+  /*
+   * Marking a problem solved.
+   *
+   * "Solved" is earned, never claimed: it is set only when your own code runs
+   * to completion and prints exactly what the problem expects. The same check
+   * the build runs against our own solutions.
+   */
+  const lastCheckedTrace = useRef(null);
+
+  useEffect(() => {
+    if (!openedProblem || mode !== "solve") return;
+    if (runner.status !== "ready" || runner.mode !== "run") return;
+
+    // Only judge each finished run once.
+    if (lastCheckedTrace.current === runner.trace) return;
+    lastCheckedTrace.current = runner.trace;
+
+    const printed = (runner.trace?.output ?? [])
+      .map((line) => line.text)
+      .join("\n");
+
+    const correct =
+      runner.trace?.status === "completed" &&
+      printed === openedProblem.expectedOutput;
+
+    setCheckResult(correct ? "pass" : "fail");
+    if (correct) markSolved(openedProblem.id);
+  }, [runner.status, runner.mode, runner.trace, openedProblem, mode, markSolved]);
+
   const sourceLines = useMemo(() => code.split("\n"), [code]);
 
-  // Arrow keys step through the run — but only once there is a run to step
-  // through, and never while the cursor is in the editor.
   useStepShortcuts(runner, runner.mode === "dry-run" && runner.totalSteps > 0);
 
-  /*
-   * Editing the code makes the recorded run stale — its line numbers may not
-   * even exist any more. Throwing it away is the honest response; showing a
-   * highlight against code that has moved would be worse than showing nothing.
-   */
   function handleCodeChange(nextCode) {
     setCode(nextCode);
+    setCheckResult(null);
     if (runner.status !== "idle") runner.clear();
   }
 
@@ -65,12 +150,42 @@ export function DryRunPage() {
   }
 
   function handleReset() {
-    resetToTemplate();
+    // Back to the starter for a problem, or the language template otherwise.
+    if (openedProblem && mode === "solve") {
+      loadInto("javascript", openedProblem.starter);
+    } else {
+      resetToTemplate();
+      setOpenedProblem(null);
+      setMode(null);
+    }
+
+    setCheckResult(null);
     runner.clear();
   }
 
+  function showSolution() {
+    if (!openedProblem) return;
+
+    loadInto("javascript", openedProblem.solution);
+    setMode("solution");
+    setCheckResult(null);
+    runner.clear();
+  }
+
+  const solving = openedProblem !== null && mode === "solve";
+
   return (
     <Container size="wide" className="py-6">
+      {openedProblem && (
+        <ProblemHeader
+          problem={openedProblem}
+          mode={mode}
+          status={statusOf(openedProblem.id)}
+          checkResult={checkResult}
+          onShowSolution={showSolution}
+        />
+      )}
+
       <EditorToolbar
         language={language}
         onSelectLanguage={handleSelectLanguage}
@@ -81,7 +196,28 @@ export function DryRunPage() {
         runningMode={runner.runningMode}
       />
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-2">
+      {/*
+        One grid, three shapes.
+          phone   everything stacked
+          laptop  problem full width, then editor and dry run side by side
+          wide    three columns
+      */}
+      <div
+        className={cx(
+          "mt-4 grid gap-4 lg:grid-cols-2",
+          solving && "xl:grid-cols-[minmax(18rem,22rem)_1fr_1fr]",
+        )}
+      >
+        {solving && (
+          <ProblemPanel
+            problem={openedProblem}
+            className={cx(
+              "lg:col-span-2 xl:col-span-1",
+              PROBLEM_PANEL_HEIGHT,
+            )}
+          />
+        )}
+
         {/* `overflow-hidden` keeps the editor's square corners inside our
             rounded panel. Without it the editor pokes out at the corners. */}
         <Panel className={`overflow-hidden ${PANEL_HEIGHT}`}>
@@ -108,5 +244,54 @@ export function DryRunPage() {
         page or the network.
       </p>
     </Container>
+  );
+}
+
+/** The strip above the toolbar when a problem is open. */
+function ProblemHeader({ problem, mode, status, checkResult, onShowSolution }) {
+  return (
+    <Panel className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2 p-3">
+      <Link
+        to="/problems"
+        className="shrink-0 text-xs font-medium text-brand hover:underline"
+      >
+        ← All problems
+      </Link>
+
+      <span className="font-hand text-lg text-text">{problem.title}</span>
+
+      {status === "solved" && (
+        <span className="rounded-full bg-brand px-2 py-0.5 text-[11px] font-medium text-brand-contrast">
+          ✓ solved
+        </span>
+      )}
+
+      {/* Feedback from the last check, in words rather than just a colour. */}
+      {checkResult === "pass" && (
+        <span role="status" className="text-xs font-medium text-brand">
+          Correct — that matches the expected answer.
+        </span>
+      )}
+
+      {checkResult === "fail" && (
+        <span role="status" className="text-xs text-muted">
+          Not quite yet. Press{" "}
+          <strong className="text-text">Dry Run</strong> to watch it line by
+          line and see where it goes wrong.
+        </span>
+      )}
+
+      {mode === "solve" && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onShowSolution}
+          title="Replace your code with the worked solution"
+          className="ml-auto"
+        >
+          Show solution
+        </Button>
+      )}
+    </Panel>
   );
 }

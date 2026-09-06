@@ -113,7 +113,17 @@ export function getTopic(id) {
 
 /** How each difficulty is shown. */
 export const DIFFICULTIES = [
-  { id: "easy", label: "Easy" },
-  { id: "medium", label: "Medium" },
-  { id: "hard", label: "Hard" },
+  { id: "Easy", label: "Easy" },
+  { id: "Medium", label: "Medium" },
+  { id: "Hard", label: "Hard" },
 ];
+
+/**
+ * How many problems the library holds.
+ *
+ * Written down so that app chrome — the footer, say — can show the total
+ * without importing all 150 problems and dragging them into the main bundle.
+ *
+ * `npm run check:problems` asserts this matches reality, so it cannot drift.
+ */
+export const PROBLEM_COUNT = 150;

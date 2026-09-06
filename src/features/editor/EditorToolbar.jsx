@@ -29,7 +29,7 @@ export function EditorToolbar({
   const isBusy = runningMode !== null && runningMode !== undefined;
   const canRun = language.canDryRun && !isBusy;
 
-  const unavailableReason = `The engine for ${language.label} is not built yet. JavaScript works today.`;
+  const unavailableReason = `The engine for ${language.label} is not built yet. JavaScript and Python work today.`;
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">

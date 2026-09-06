@@ -12,7 +12,7 @@
  * timer. Starting clean costs a few milliseconds and removes that whole class
  * of confusing bug.
  *
- * THE HARD DEADLINE
+ * THE Hard DEADLINE
  *
  * The engine watches its own step count and clock, so it normally stops
  * itself. This timeout is the backstop for the case where it cannot — and
@@ -27,7 +27,7 @@
  * "your code ran too long" result gets a chance to come back with its trace
  * intact. This only fires when the engine itself has failed to stop.
  */
-const HARD_DEADLINE_MS = 8_000;
+const Hard_DEADLINE_MS = 8_000;
 
 let nextRequestId = 1;
 
@@ -78,7 +78,7 @@ export function runInSandbox({ source, languageId, mode = "dry-run" }) {
           line: null,
         },
       });
-    }, HARD_DEADLINE_MS);
+    }, Hard_DEADLINE_MS);
 
     worker.onmessage = (event) => {
       // Ignore anything that is not the answer we asked for.

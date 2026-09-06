@@ -70,6 +70,18 @@
 # applied and the engine will not work in production.
 # ---------------------------------------------------------------------------
 
+#
+# ⚠ CHANGED WHEN PYTHON LANDED: connect-src was 'none'.
+#
+# Python is real CPython compiled to WebAssembly, and it fetches its own
+# runtime — about 13 MB of wasm and standard library — from /pyodide/ as it
+# starts. 'none' blocked that outright.
+#
+# 'self' is the smallest change that allows it: the thread may now request
+# files from our own domain, and from nowhere else. Code running here still
+# cannot reach any third party, which is the thing that actually matters —
+# there is no address it could send anything to.
+
 /workers/*
-  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-eval'; connect-src 'none'
+  Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-eval'; connect-src 'self'; worker-src 'self'
   X-Content-Type-Options: nosniff
